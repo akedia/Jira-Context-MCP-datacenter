@@ -45,7 +45,7 @@ A Model Context Protocol (MCP) implementation for Jira that allows you to:
 4. Edit the `.env` file with your Jira details:
    ```
    JIRA_BASE_URL=https://your-domain.atlassian.net
-   JIRA_USERNAME=your-email@example.com
+   JIRA_USERNAME=your-username
    JIRA_API_TOKEN=your-api-token-here
    HTTP_PORT=3000
    ```
