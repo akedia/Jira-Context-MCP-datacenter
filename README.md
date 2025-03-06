@@ -26,7 +26,7 @@ A Model Context Protocol (MCP) implementation for Jira that allows you to:
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/Jira-Context-MCP.git
+   git clone https://github.com/akedia/Jira-Context-MCP-datacenter.git
    cd Jira-Context-MCP
    ```
 
