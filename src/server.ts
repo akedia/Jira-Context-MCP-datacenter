@@ -5,20 +5,27 @@ import { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import express, { Request, Response } from "express";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { IncomingMessage, ServerResponse } from "http";
+import { reloadEnv } from "./utils/env-loader";
 
 export class JiraMcpServer {
   private readonly server: McpServer;
   private readonly jiraService: JiraService;
   private sseTransport: SSEServerTransport | null = null;
 
-  constructor(jiraUrl: string, username: string, apiToken: string) {
-    this.jiraService = new JiraService(jiraUrl, username, apiToken);
+  constructor() {
+    reloadEnv();
+    
+    this.jiraService = new JiraService();
     this.server = new McpServer({
       name: "Jira MCP Server",
       version: "0.1.0",
     });
 
     this.registerTools();
+  }
+
+  public reloadJiraConfig(): void {
+    this.jiraService.reloadConfig();
   }
 
   private registerTools(): void {
@@ -151,6 +158,29 @@ export class JiraMcpServer {
   async startHttpServer(port: number): Promise<void> {
     const app = express();
 
+    app.get("/health", (req: Request, res: Response) => {
+      res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+    });
+
+    app.post("/reload-config", (req: Request, res: Response) => {
+      try {
+        reloadEnv();
+        this.reloadJiraConfig();
+        res.status(200).json({ 
+          status: "ok", 
+          message: "配置已重新加载",
+          timestamp: new Date().toISOString() 
+        });
+      } catch (error) {
+        console.error("重新加载配置失败:", error);
+        res.status(500).json({ 
+          status: "error", 
+          message: `重新加载配置失败: ${error}`,
+          timestamp: new Date().toISOString() 
+        });
+      }
+    });
+
     app.get("/sse", async (req: Request, res: Response) => {
       console.log("New SSE connection established");
       this.sseTransport = new SSEServerTransport(
@@ -175,6 +205,8 @@ export class JiraMcpServer {
       console.log(`HTTP server listening on port ${port}`);
       console.log(`SSE endpoint available at http://localhost:${port}/sse`);
       console.log(`Message endpoint available at http://localhost:${port}/messages`);
+      console.log(`Health check endpoint available at http://localhost:${port}/health`);
+      console.log(`Config reload endpoint available at http://localhost:${port}/reload-config`);
     });
   }
 } 

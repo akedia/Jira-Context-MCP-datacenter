@@ -27,12 +27,12 @@ export interface JiraIssue {
     assignee?: {
       displayName: string;
       emailAddress: string;
-      accountId: string;
+      name: string;
     };
     reporter?: {
       displayName: string;
       emailAddress: string;
-      accountId: string;
+      name: string;
     };
     created: string;
     updated: string;
@@ -67,7 +67,7 @@ export interface JiraSearchResponse {
 }
 
 export interface JiraUser {
-  accountId: string;
+  name: string;
   displayName: string;
   emailAddress: string;
 }
